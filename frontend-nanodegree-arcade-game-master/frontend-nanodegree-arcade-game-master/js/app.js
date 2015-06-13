@@ -2,17 +2,17 @@
 var enemyPosition = [70, 150, 230];
 
 // Enemy bugs in different color
-var enemyType = ['images/enemy-bug.png', 'images/enemy-bug2.png'];
+var enemySprite = ['images/enemy-bug.png', 'images/enemy-bug2.png'];
 
 // At the start of the game player has 3 lives
 var pLives = 3;
 
 // Positions on x and y for gems, to be chosen from randomly
 // when gems appear
-var gemPositionX =[0, 100, 200, 300, 400];
-var gemPositionY =[70, 150, 180, 230, 280, 310];
+var gemPositionX = [0, 100, 200, 300, 400];
+var gemPositionY = [70, 150, 180, 230, 280, 310];
 // Gems in different color
-var gemType = ['images/Gem Blue.png', 'images/Gem Green.png', 'images/Gem Orange.png'];
+var gemSprite = ['images/Gem Blue.png', 'images/Gem Green.png', 'images/Gem Orange.png'];
 
 // At the start of the game player has score equal to 0
 var score = 0;
@@ -24,17 +24,17 @@ var Enemy = function() {
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
-    // Modified to randomly select between two different colors 
+    // Modified to randomly select between two different colors
     // of Enemy bugs
-    this.sprite = enemyType[Math.floor(Math.random() * 2)];
+    this.sprite = enemySprite[Math.floor(Math.random() * enemySprite.length)];
 
-    // So that Enemy bugs appear to be entering the canvas 
+    // So that Enemy bugs appear to be entering the canvas
     this.x = -100;
     // Random starting positions for Enemies on y axis
-    this.y = enemyPosition[Math.floor(Math.random() * 3)];
+    this.y = enemyPosition[Math.floor(Math.random() * enemyPosition.length)];
     // Random speed for Enemies
     this.speed = Math.floor((Math.random() * 200) + 50);
-}
+};
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -42,65 +42,46 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-
     this.x = this.x + (this.speed *dt);
-
+    
     // When Enemy bug exits the canvas it gets reset to a random y
     // start position and random speed
-    if (this.x > 505){
+    if (this.x > 505) {
        this.x = -100;
-       this.y = enemyPosition[Math.floor(Math.random() * 3)];
-       this.speed = Math.floor((Math.random() * 200) + 50); 
+       this.y = enemyPosition[Math.floor(Math.random() * enemyPosition.length)];
+       this.speed = Math.floor((Math.random() * 200) + 50);
     }
 
-    checkCollison = function () {
-        // Function to check if Enemy bug and player have collided,
-        // using for loop to loop through all Enemy bugs in 
-        // allEnemies array
-        for (enemy in allEnemies){
+    // Measuring the distance between center of the player in
+    // the “box” (player’s .png is larger than the actual player)
+    // and center of the bug in the bug “box”
+    this.bugPlayerDistance = Math.pow(Math.pow(player.x+50-(this.x+50),2)+Math.pow(player.y+100-(this.y+110),2),0.5);
 
-            // Measuring the distance between center of the player in 
-            // the “box” (player’s .png is larger than the actual player)
-            // and center of the bug in the bug “box”. 
-            distance = Math.pow(Math.pow(player.x+50-(allEnemies[enemy].x+50),2)+Math.pow(player.y+100-(allEnemies[enemy].y+110),2),0.5);
+    // When the distance (from center of the player to center
+    // of the bug) is less than or equal to 70 px,  player and
+    // Enemy bug have collided so we should reset the player
+    // to its original position and subtract a life from the
+    // lives count
+    if(this.bugPlayerDistance <= 70) {
+        // Subtracting one life
+        pLives -= 1;
 
-            // When the distance (from center of the player to center 
-            // of the bug) is less than or equal to 70 px,  player and
-            // Enemy bug have collided so we should reset the player
-            // to its original position and subtract a life from the 
-            // lives count
-            if(distance <= 70) {     
-                // Clearing the canvas from the previous lives count
-                ctx.clearRect(0, 20, 300, 25);
-
-                // Subtracting one life
-                pLives -= 1;
-
-                // Putting new lives count onto canvas
-                ctx.fillStyle="#96BF19";
-                ctx.font="20px Verdana";
-                ctx.fillText("Lives " + pLives, 0, 45);
-
-                // If the number of lives reaches 0 the game is over,
-                // bugs won, and we reload the game to start over
-                if (pLives === 0){
-                    alert("Bugs win! Try again?");
-                    location.reload(); 
-                }
-                // If player collides with a bug, and still has some
-                // lives left, it gets reset to original position on the canvas
-                player.reset();
-            }
-        };
-    }   
-    checkCollison();
-}
-
+        // If the number of lives reaches 0 the game is over,
+        // bugs won, and we reload the game to start over
+        if (pLives === 0) {
+            alert('Bugs win! Try again?');
+            location.reload();
+        }
+        // If player collides with a bug, and still has some
+        // lives left, it gets reset to original position on the canvas
+        player.reset();
+    }
+};
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
+};
 
 // Gems our player must collect to get a key and finish the game
 var Gem = function() {
@@ -108,124 +89,93 @@ var Gem = function() {
 
     // The image/sprite for our gems, this uses
     // a helper to easily load images
-    // Modified to randomly select between three different colors 
+    // Modified to randomly select between three different colors
     // of gems
-    this.sprite = gemType[Math.floor(Math.random() * 3)];
+    this.sprite = gemSprite[Math.floor(Math.random() * gemSprite.length)];
 
     // So that gems appear randomly on the canvas using Arrays
     // defined at the start of the code
-    this.x = gemPositionX[Math.floor(Math.random() * 5)];
-    this.y = gemPositionY[Math.floor(Math.random() * 5)];
-}
+    this.x = gemPositionX[Math.floor(Math.random() * gemPositionX.length)];
+    this.y = gemPositionY[Math.floor(Math.random() * gemPositionY.length)];
+};
 
 // Update the gems position
 Gem.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
-    this.x * (dt);
-    this.y * (dt);
 
-    checkCollison = function () {
-        if (score < 100){
-        // Function to check if Gem and player have collided,
-        // using for loop to loop through all Gems in 
-        // allGems array
-            for (gem in allGems){
+    // Measuring the distance between center of the player in 
+    // the “box” (player’s .png is larger than the actual player)
+    // and center of the gem in the gem “box”
+    this.gemPlayerDistance = Math.pow(Math.pow(player.x+50-(this.x+50),2)+Math.pow(player.y+100-(this.y+110),2),0.5);
 
-                // Measuring the distance between center of the player in 
-                // the “box” (player’s .png is larger than the actual player)
-                // and center of the gem in the gem “box”. 
-                distance = Math.pow(Math.pow(player.x+50-(allGems[gem].x+50),2)+Math.pow(player.y+100-(allGems[gem].y+110),2),0.5);
+    if (score < 100) {
+    // Function to check if Gem and player have collided
+    
+        // When the distance (from center of the player to center
+        // of the gem) is less than or equal to 65 px,  player and
+        // gem have collided so we should add ten points to our score
+        if(this.gemPlayerDistance <= 65) {
+            // Adding 10 points for each gem collected
+            score += 10;
 
-                // When the distance (from center of the player to center 
-                // of the gem) is less than or equal to 70 px,  player and
-                // gem have collided so we should add ten points to our score
-                if(distance <= 55) {
-                    
-                    // Clearing the canvas from the previous score count
-                    ctx.clearRect(350, 20, 400, 25);
+            // If the score reaches 100 the game is over,
+            // YOU won, and we reload the game to start over
+            // This game ending was tried out before adding the KEY:
+            //if (score < 100){
+                //allGems[gem].reset();
+                // for(gem in allGems){
+                //     gem.x = 1000;
+                //     gem.y = 1000;
+                // };
+            //}
 
-                    // Adding 10 points for each gem collected
-                    score += 10;
-
-                    // Putting new score count onto canvas
-                    ctx.fillStyle="#3366FF";
-                    ctx.font="20px Verdana";
-                    ctx.fillText("Score " + score, 400, 45);
-
-                    // If the score reaches 100 the game is over,
-                    // YOU won, and we reload the game to start over
-                    // This game ending was tried out before adding the KEY: 
-                    //if (score < 100){
-                        //allGems[gem].reset();
-                        // for(gem in allGems){
-                        //     gem.x = 1000;
-                        //     gem.y = 1000;
-                        // };
-
-                    //}
-                    allGems[gem].reset();     
-                }
-            };
+            // Collected gem reappearing on the canvas
+            this.sprite = gemSprite[Math.floor(Math.random() * gemSprite.length)];
+            this.x = gemPositionX[Math.floor(Math.random() * gemPositionX.length)];
+            this.y = gemPositionY[Math.floor(Math.random() * gemPositionY.length)];
         }
-        // For gems to stop appearing on the canvas after
-        // the score reaches 100
-        if (score === 100){
-            for(gem in allGems){
-                allGems[gem].x = 1000;
-                allGems[gem].y = 1000;
-            };
-        }
+    }
+
+    // For gems to stop appearing on the canvas after
+    // the score reaches 100
+    if (score === 100) {
+        for(gem in allGems) {
+            allGems[gem].x = 1000;
+             allGems[gem].y = 1000;
+        };
     }   
-    checkCollison();
-}
+};
 
 // Draw the gem on the screen, required method for game
 Gem.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
-
-Gem.prototype.reset = function() {
-    // Gems reappearing on the canvas
-    this.sprite = gemType[Math.floor(Math.random() * 3)];
- 
-    this.x = gemPositionX[Math.floor(Math.random() * 5)];
-    this.y = gemPositionY[Math.floor(Math.random() * 5)];
-}
+};
 
 // Key that player must collect to finish the game
 var Key = function() {
     this.x = 300;
     this.y = 10;
     this.sprite = 'images/Key.png';
-}
+};
 
 Key.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
+};
 
 Key.prototype.update = function(dt) {
-    this.x * (dt);
-    this.y * (dt);
 
-    checkCollison = function () {
+    // Measuring the distance between center of the player in
+    // the “box” (player’s .png is larger than the actual player)
+    // and center of the key in the key “box”.
+    this.keyPlayerDistance = Math.pow(Math.pow(player.x+50-(this.x+52),2)+Math.pow(player.y+100-(this.y+116),2),0.5);
 
-        // Measuring the distance between center of the player in 
-        // the “box” (player’s .png is larger than the actual player)
-         // and center of the key in the key “box”. 
-        distance = Math.pow(Math.pow(player.x+50-(unlock.x+52),2)+Math.pow(player.y+100-(unlock.y+116),2),0.5);
-
-        // When the distance (from center of the player to center 
-        // of the key) is less than or equal to 40 px,  player and
-        // key have collided and player wins over bugs
-        if(distance <= 40) {
-                alert("You win, bugs lose!!"); 
-                location.reload(); 
-        } 
-    }   
-    checkCollison();
-}
+    // When the distance (from center of the player to center
+    // of the key) is less than or equal to 40 px,  player and
+    // key have collided and player wins over bugs
+    if(this.keyPlayerDistance <= 40 && score >= 100) {
+        alert('You win, bugs lose!!');
+        location.reload();
+    }
+};
 
 // Now write your own player class
 // This class requires an update(), render() and
@@ -236,19 +186,14 @@ var Player = function(x, y) {
     this.sprite = 'images/char-boy.png';
     this.x = x;
     this.y = y;
-}
+};
 
 Player.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
-    this.x * (dt);
-    this.y * (dt);
-}
+};
 
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
+};
 
 Player.prototype.handleInput = function(x) {
     
@@ -260,43 +205,43 @@ Player.prototype.handleInput = function(x) {
         this.x -= 40;
         // When Player reaches the left end of the level (canvas)
         // Player stops
-        if (this.x < 0){
+        if (this.x < 0) {
             this.x = 0;
-        };
-    };
+        }
+    }
     
     if (x === "right") {
         this.x += 40;
-        if (this.x > 404){
+        if (this.x > 404) {
             this.x = 404;
-        };
-    };
+        }
+    }
 
     if (x === "up") {
         this.y -= 40;
-        if (this.y <= 7){
+        if (this.y <= 7) {
             this.y = 7;
             // If you would like to win the game by reaching the
             // water, comment out the line above, and uncomment
             // two lines bellow this comment:
-            //alert("You win, bugs lose!!");
-            //location.reload();   
-        };
-    };
+            //alert('You win, bugs lose!!');
+            //location.reload();  
+        }
+    }
 
     if (x === "down") {
         this.y += 40;
-        if (this.y > 430){
+        if (this.y > 430) {
             this.y = 430;
-        };
-    };
-}
+        }
+    }
+};
 
 Player.prototype.reset = function() {
     // Returns Player to the start position
     this.x = 200;
     this.y = 400;
-}
+};
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
@@ -306,14 +251,14 @@ var gem2 = new Gem();
 var gem3 = new Gem();
 
 var allGems = [];
-allGems.push(gem1, gem2, gem3);
+for (var i=0; i<3; ++i) allGems.push(new Gem());
 
 var bug1 = new Enemy();
 var bug2 = new Enemy();
 var bug3 = new Enemy();
 
 var allEnemies = [];
-allEnemies.push(bug1, bug2, bug3);
+for (var i=0; i<3; ++i) allEnemies.push(new Enemy());
 
 var player = new Player(200, 400);
 
@@ -330,3 +275,9 @@ document.addEventListener('keyup', function(e) {
     };
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+
+
+
+
+

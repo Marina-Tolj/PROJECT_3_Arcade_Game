@@ -143,13 +143,15 @@ var Engine = (function(global) {
 
         // Showing number of player lives at the top left corner above
         // the game level
-        ctx.fillStyle="#96BF19";
-        ctx.font="20px Verdana";
+        ctx.clearRect(0, 20, 300, 25);
+        ctx.fillStyle = "#96BF19";
+        ctx.font = "20px Verdana";
         ctx.fillText("Lives " + pLives, 0, 45);
 
         // Showing the score in the top right corner
-        ctx.fillStyle="#3366FF";
-        ctx.font="20px Verdana";
+        ctx.clearRect(350, 20, 400, 25);
+        ctx.fillStyle = "#3366FF";
+        ctx.font = "20px Verdana";
         ctx.fillText("Score " + score, 400, 45);
     }
 
