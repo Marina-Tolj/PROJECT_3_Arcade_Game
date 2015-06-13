@@ -100,7 +100,7 @@ var Gem = function() {
 };
 
 // Update the gems position
-Gem.prototype.update = function(dt) {
+Gem.prototype.update = function() {
 
     // Measuring the distance between center of the player in 
     // the “box” (player’s .png is larger than the actual player)
@@ -117,17 +117,6 @@ Gem.prototype.update = function(dt) {
             // Adding 10 points for each gem collected
             score += 10;
 
-            // If the score reaches 100 the game is over,
-            // YOU won, and we reload the game to start over
-            // This game ending was tried out before adding the KEY:
-            //if (score < 100){
-                //allGems[gem].reset();
-                // for(gem in allGems){
-                //     gem.x = 1000;
-                //     gem.y = 1000;
-                // };
-            //}
-
             // Collected gem reappearing on the canvas
             this.sprite = gemSprite[Math.floor(Math.random() * gemSprite.length)];
             this.x = gemPositionX[Math.floor(Math.random() * gemPositionX.length)];
@@ -137,11 +126,11 @@ Gem.prototype.update = function(dt) {
 
     // For gems to stop appearing on the canvas after
     // the score reaches 100
-    if (score === 100) {
+    if (score >= 100) {
         for(gem in allGems) {
             allGems[gem].x = 1000;
              allGems[gem].y = 1000;
-        };
+        }
     }   
 };
 
@@ -161,7 +150,7 @@ Key.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-Key.prototype.update = function(dt) {
+Key.prototype.update = function() {
 
     // Measuring the distance between center of the player in
     // the “box” (player’s .png is larger than the actual player)
@@ -221,11 +210,12 @@ Player.prototype.handleInput = function(x) {
         this.y -= 40;
         if (this.y <= 7) {
             this.y = 7;
-            // If you would like to win the game by reaching the
-            // water, comment out the line above, and uncomment
+            score += 5;
+            // If you would like to win the game just by reaching the
+            // water, comment out the lines above, and uncomment
             // two lines bellow this comment:
-            //alert('You win, bugs lose!!');
-            //location.reload();  
+            // alert('You win, bugs lose!!');
+            // location.reload();  
         }
     }
 
@@ -246,19 +236,16 @@ Player.prototype.reset = function() {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
-var gem1 = new Gem();
-var gem2 = new Gem();
-var gem3 = new Gem();
 
 var allGems = [];
-for (var i=0; i<3; ++i) allGems.push(new Gem());
-
-var bug1 = new Enemy();
-var bug2 = new Enemy();
-var bug3 = new Enemy();
+for (var i=0; i<3; ++i) {
+    allGems[i] = new Gem();
+}
 
 var allEnemies = [];
-for (var i=0; i<3; ++i) allEnemies.push(new Enemy());
+for (var i=0; i<3; ++i) {
+    allEnemies[i] = new Enemy(); 
+}
 
 var player = new Player(200, 400);
 
